@@ -1,0 +1,137 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDashboard
+metadata:
+  name: monitoring-namespace-overview
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  folder: MONITORING
+  json: |
+    {
+      "title": "Namespace monitoring - Overview",
+      "editable": false,
+      "schemaVersion": 42,
+      "version": 1,
+      "refresh": "15s",
+
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+
+      "panels": [
+
+        {
+          "type": "stat",
+          "title": "Total Pods",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+          "targets": [
+            { "expr": "count(kube_pod_info{namespace=\"monitoring\"})" }
+          ]
+        },
+
+        {
+          "type": "stat",
+          "title": "Running Pods",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+          "targets": [
+            { "expr": "count(kube_pod_status_phase{namespace=\"monitoring\",phase=\"Running\"} == 1)" }
+          ]
+        },
+
+        {
+          "type": "stat",
+          "title": "Pods Not Ready",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+          "targets": [
+            { "expr": "count(kube_pod_status_ready{namespace=\"monitoring\",condition=\"false\"} == 1)" }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  { "color": "green", "value": null },
+                  { "color": "orange", "value": 1 },
+                  { "color": "red", "value": 3 }
+                ]
+              }
+            }
+          }
+        },
+
+        {
+          "type": "stat",
+          "title": "Restart Rate (5m)",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+          "targets": [
+            { "expr": "sum(rate(kube_pod_container_status_restarts_total{namespace=\"monitoring\"}[5m]))" }
+          ]
+        },
+
+        {
+          "type": "timeseries",
+          "title": "CPU Usage (cores)",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",container!=\"\"}[5m]))",
+              "legendFormat": "CPU"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "cores" }
+          }
+        },
+
+        {
+          "type": "timeseries",
+          "title": "Memory Usage (GiB)",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+          "targets": [
+            {
+              "expr": "sum(container_memory_usage_bytes{namespace=\"monitoring\",container!=\"\"}) / 1024 / 1024 / 1024",
+              "legendFormat": "Memory"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": { "unit": "gbytes" }
+          }
+        },
+
+        {
+          "type": "barchart",
+          "title": "Top 5 Pods by CPU",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "targets": [
+            {
+              "expr": "topk(5, sum(rate(container_cpu_usage_seconds_total{namespace=\"monitoring\",container!=\"\"}[5m])) by (pod))",
+              "legendFormat": "{{pod}}"
+            }
+          ]
+        },
+
+        {
+          "type": "barchart",
+          "title": "Top 5 Pods by Memory (GiB)",
+          "datasource": "Prometheus",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+          "targets": [
+            {
+              "expr": "topk(5, sum(container_memory_usage_bytes{namespace=\"monitoring\",container!=\"\"}) by (pod)) / 1024 / 1024 / 1024",
+              "legendFormat": "{{pod}}"
+            }
+          ]
+        }
+
+      ]
+    }

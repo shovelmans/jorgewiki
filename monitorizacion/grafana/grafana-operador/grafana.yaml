@@ -1,0 +1,25 @@
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: instancia-grafana
+  namespace: monitoring
+  labels:
+    dashboards: "grafana"
+spec:
+  config:
+    log:
+      mode: console
+    security:
+      admin_user: admin
+
+  deployment:
+    spec:
+      replicas: 1
+
+  service:
+    spec:
+      type: NodePort
+      ports:
+        - port: 3000
+          targetPort: 3000
+          nodePort: 30000
