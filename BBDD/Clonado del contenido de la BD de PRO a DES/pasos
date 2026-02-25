@@ -1,0 +1,137 @@
+Ticket de ejemplo:
+https://redmine-attgap.juntadeandalucia.es/issues/46613
+[DES|PRO] Clonado del contenido de la BD de PRO a DES del acortador jda
+Buenas, se solicita un clonado del contenido de la BD de PRO del acortador de junta al de DES para poder realizar una prueba antes del borrado de datos.
+El pod de la BD de pro es: https://console-openshift-console.apps.paas-pro.junta-andalucia.es/k8s/ns/acortador-urls/deployments/deploy-mariadb-server-jda
+El pod de la BD de des es: https://console-openshift-console.apps.paas-des.junta-andalucia.es/k8s/ns/des-acortador-urls/deployments/deploy-mariadb-server-jda
+Necesito que solo se copie el contenido de la BD, específicamente el contenido de la tabla 'yourls_url'
+Un saludo
+
+PASOS:
+| Paso | Acción                   | Entorno            | Comando / Acción técnica                                                       | Resultado esperado          |
+| ---- | ------------------------ | ------------------ | ------------------------------------------------------------------------------ | --------------------------- |
+| 1    | Crear namespaces         | Cluster            | `kubectl create namespace produccion`<br>`kubectl create namespace desarrollo` | Namespaces creados          |
+| 2    | Crear Secret MariaDB     | PRODUCCIÓN         | `kubectl -n produccion create secret generic mariadb-secret ...`               | Secret con credenciales     |
+| 3    | Crear PVC                | PRODUCCIÓN         | `kubectl apply -f PRO/mariadb-pvc.yaml`                                        | PVC en Bound                |
+| 4    | Crear Deployment         | PRODUCCIÓN         | `kubectl apply -f PRO/mariadb-deployment.yaml`                                 | Pod en Running              |
+| 5    | Crear Service            | PRODUCCIÓN         | `kubectl apply -f PRO/mariadb-service.yaml`                                    | Service creado              |
+| 6    | Verificar despliegue     | PRODUCCIÓN         | `kubectl -n produccion get pods/svc/pvc`                                       | Todo operativo              |
+| 7    | Acceder al pod           | PRODUCCIÓN         | `kubectl -n produccion exec -it <pod> -- bash`                                 | Shell dentro del contenedor |
+| 8    | Acceder a MariaDB        | PRODUCCIÓN         | `mariadb -u root -p`                                                           | Acceso a BD                 |
+| 9    | Crear tabla `yourls_url` | PRODUCCIÓN         | `CREATE TABLE yourls_url (...)`                                                | Tabla creada                |
+| 10   | Insertar datos           | PRODUCCIÓN         | `INSERT INTO yourls_url (...)`                                                 | 20 registros insertados     |
+| 11   | Validar datos            | PRODUCCIÓN         | `SELECT COUNT(*) FROM yourls_url;`                                             | 20 registros                |
+| 12   | Crear Secret MariaDB     | DESARROLLO         | `kubectl -n desarrollo create secret generic mariadb-secret ...`               | Secret creado               |
+| 13   | Crear PVC                | DESARROLLO         | `kubectl apply -f mariadb-pvc-des.yaml`                                        | PVC Bound                   |
+| 14   | Crear Deployment         | DESARROLLO         | `kubectl apply -f mariadb-deployment-des.yaml`                                 | Pod Running                 |
+| 15   | Crear Service            | DESARROLLO         | `kubectl apply -f mariadb-service-des.yaml`                                    | Service creado              |
+| 16   | Verificar estado inicial | DESARROLLO         | `SHOW TABLES;`                                                                 | Sin tabla `yourls_url`      |
+| 17   | Exportar tabla           | PRODUCCIÓN → Local | `kubectl exec ... mariadb-dump ... > yourls_url.sql`                           | Dump generado en local      |
+| 18   | Verificar dump           | Local              | `ls -lh yourls_url.sql`                                                        | Fichero 4.3K aprox          |
+| 19   | Copiar dump al pod       | DESARROLLO         | `kubectl cp yourls_url.sql <pod>:/tmp/yourls_url.sql`                          | Fichero en `/tmp`           |
+| 20   | Verificar copia          | DESARROLLO         | `kubectl exec ... ls -lh /tmp`                                                 | Dump visible                |
+| 21   | Importar tabla           | DESARROLLO         | `SOURCE /tmp/yourls_url.sql;`                                                  | Tabla creada e insertada    |
+| 22   | Validar clonado          | DESARROLLO         | `SELECT COUNT(*) FROM yourls_url;`                                             | 20 registros                |
+| 23   | Confirmación final       | —                  | Comparar conteo PRO vs DES                                                     | Coinciden                   |
+
+
+🥇 PASO 1 — Crear los namespaces
+kubectl create namespace produccion
+kubectl create namespace desarrollo
+
+🥈 PASO 2 — Desplegar MariaDB en produccion
+kubectl -n produccion create secret generic mariadb-secret \
+  --from-literal=MARIADB_ROOT_PASSWORD=RootPass123 \
+  --from-literal=MARIADB_DATABASE=yourls
+kubectl apply -f PRO/mariadb-pvc.yaml
+kubectl apply -f PRO/mariadb-deployment.yaml
+kubectl apply -f PRO/mariadb-service.yaml
+kubectl -n produccion get pods
+kubectl -n produccion get svc
+kubectl -n produccion get pvc
+
+🥉 PASO 3 — Crear tabla yourls_url y meter datos en PRODUCCIÓN
+kubectl -n produccion get pods
+kubectl -n produccion exec -it mariadb-78b5f45974-qz58b -- bash
+mariadb -u root -p -> RootPass123
+SHOW DATABASES; --> yourls existe
+USE yourls;
+
+🥉 PASO 3.4 — Crear tabla yourls_url
+CREATE TABLE yourls_url (
+  keyword VARCHAR(200) NOT NULL,
+  url TEXT NOT NULL,
+  title TEXT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  clicks INT DEFAULT 0,
+  PRIMARY KEY (keyword)
+);
+
+🥉 PASO 3.5 — Insertar datos de ejemplo en PRODUCCIÓN
+INSERT INTO yourls_url (keyword, url, title, clicks) VALUES
+('intranet', 'https://intranet.juntadeandalucia.es', 'Intranet Corporativa', 145),
+('rrhh', 'https://rrhh.juntadeandalucia.es', 'Portal Recursos Humanos', 98),
+('correo', 'https://correo.juntadeandalucia.es', 'Correo Corporativo', 210),
+('contratacion', 'https://contratacion.juntadeandalucia.es', 'Plataforma de Contratación', 87),
+('transparencia', 'https://transparencia.juntadeandalucia.es', 'Portal de Transparencia', 120),
+('sede', 'https://sede.juntadeandalucia.es', 'Sede Electrónica', 340),
+('boja', 'https://www.juntadeandalucia.es/boja', 'BOJA Oficial', 176),
+('salud', 'https://www.sspa.juntadeandalucia.es', 'Servicio Andaluz de Salud', 199),
+('educacion', 'https://www.juntadeandalucia.es/educacion', 'Consejería de Educación', 165),
+('justicia', 'https://www.juntadeandalucia.es/justicia', 'Consejería de Justicia', 112),
+('medioambiente', 'https://www.juntadeandalucia.es/medioambiente', 'Consejería de Medio Ambiente', 73),
+('agricultura', 'https://www.juntadeandalucia.es/agriculturaypesca', 'Consejería de Agricultura', 88),
+('empleo', 'https://www.juntadeandalucia.es/empleo', 'Consejería de Empleo', 134),
+('turismo', 'https://www.andalucia.org', 'Turismo de Andalucía', 256),
+('cultura', 'https://www.juntadeandalucia.es/cultura', 'Consejería de Cultura', 67),
+('hacienda', 'https://www.juntadeandalucia.es/haciendayfinanciacioneuropea', 'Consejería de Hacienda', 154),
+('familia', 'https://www.juntadeandalucia.es/igualdadypoliticassociales', 'Políticas Sociales', 92),
+('movilidad', 'https://www.juntadeandalucia.es/fomentoyvivienda', 'Fomento y Vivienda', 81),
+('digital', 'https://www.juntadeandalucia.es/transformacioneconomica', 'Transformación Digital', 59),
+('participa', 'https://participa.juntadeandalucia.es', 'Portal de Participación Ciudadana', 44);
+SELECT COUNT(*) FROM yourls_url;
+
+
+🥇 PASO 4 — Desplegar MariaDB en desarrollo
+kubectl -n desarrollo create secret generic mariadb-secret \
+  --from-literal=MARIADB_ROOT_PASSWORD=RootPass123 \
+  --from-literal=MARIADB_DATABASE=yourls
+
+kubectl apply -f mariadb-pvc-des.yaml
+kubectl apply -f mariadb-deployment-des.yaml
+kubectl apply -f mariadb-service-des.yaml
+
+kubectl -n desarrollo get pods
+kubectl -n desarrollo get pvc
+kubectl -n desarrollo get svc
+
+kubectl -n desarrollo get pods
+kubectl -n desarrollo exec -it mariadb-78b5f45974-54pq4 -- bash
+mariadb -u root -p -> RootPass123
+
+SHOW DATABASES;
+USE yourls;
+SHOW TABLES;
+
+🥇 PASO 6 — Exportar SOLO la tabla desde PRODUCCIÓN
+kubectl -n produccion get pods
+kubectl -n produccion exec mariadb-78b5f45974-qz58b -- \
+mariadb-dump -u root -pRootPass123 yourls yourls_url > yourls_url.sql
+
+*Se descarga el dump en la ruta que estemos (pwd)
+ls -lh yourls_url.sql
+
+🥇 PASO 7 — Importación en DES
+7.1 Copiar el dump al pod de desarrollo
+kubectl -n desarrollo get pods
+kubectl -n desarrollo cp yourls_url.sql mariadb-78b5f45974-54pq4:/tmp/yourls_url.sql
+kubectl -n desarrollo exec -it mariadb-78b5f45974-54pq4 -- sh -c "ls -lh /tmp"
+
+7.2 Importar contenido en DES
+kubectl -n desarrollo exec -it mariadb-78b5f45974-54pq4 -- bash
+mariadb -u root -p -> RootPass123
+USE yourls;
+SOURCE /tmp/yourls_url.sql;
+
+7.3 Validación post-import
+SELECT COUNT(*) FROM yourls_url;
