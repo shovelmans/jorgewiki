@@ -1,0 +1,37 @@
+--
+-- PostgreSQL database cluster dump
+--
+
+\restrict 7TOhAeEo5r159duGsRCeagLplkaqypXp7I2DJqDKhKS1N0HcSBXRJn1STc7ZVrz
+
+SET default_transaction_read_only = off;
+
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+
+--
+-- Roles
+--
+
+CREATE ROLE appuser;
+ALTER ROLE appuser WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:wdQigulvPNesmJ3+fmS44g==$r8KmI7CXfcOPxTrMy64Sbm6DRK3YJaSM0O/p6DHpFsI=:4SSHcp/tc5ESxPDs1i1oGwA2ZbA3TPZL2GtEuYStCHo=';
+CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:YBg4HctIYmg/+m86SLGugw==$BqgdbLokzsS/TkP70O/bgEHd4TcCxNzHpkbtlfnT6Zs=:gvI1CSBKmd0mywfFURVB+J6xDU35PoNXKjqsYQoQTfg=';
+CREATE ROLE reportuser;
+ALTER ROLE reportuser WITH NOSUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'SCRAM-SHA-256$4096:oXAqUzI2C9hK2m42hIFaew==$g7h1ZkTjCwx3xzdvX+x4cZvdMi1enE3RxxGzEQi653E=:RN+INxj9og6PastMg7Kkldjl82FjR0btevESi1W/R/I=';
+
+--
+-- User Configurations
+--
+
+
+
+
+
+
+\unrestrict 7TOhAeEo5r159duGsRCeagLplkaqypXp7I2DJqDKhKS1N0HcSBXRJn1STc7ZVrz
+
+--
+-- PostgreSQL database cluster dump complete
+--
+
