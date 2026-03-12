@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: centreon
+  namespace: centreon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: centreon
+  template:
+    metadata:
+      labels:
+        app: centreon
+    spec:
+      containers:
+      - name: centreon
+        image: webcenter/centreon:25.10-configured
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args: ["-c", "while true; do sleep 30; done"]
+        ports:
+        - containerPort: 80
+        - containerPort: 3306
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
