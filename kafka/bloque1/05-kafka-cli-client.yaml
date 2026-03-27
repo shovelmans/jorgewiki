@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-cli
+  namespace: kafka
+  labels:
+    app: kafka-cli
+spec:
+  restartPolicy: Never
+  containers:
+    - name: kafka-cli
+      image: quay.io/strimzi/kafka:0.51.0-kafka-4.2.0 #PEGA_AQUI_LA_IMAGEN_DEL_BROKER
+      command:
+        - sleep
+        - infinity

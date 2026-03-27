@@ -19,7 +19,7 @@ kubectl apply -f centreon-deployment.yaml
 Comprobar que el pod está levantado:
 
 ``` bash
-kubectl get pods -n centreon
+kubectl get pods -n centreon -w
 ```
 
 ------------------------------------------------------------------------
@@ -29,7 +29,7 @@ kubectl get pods -n centreon
 Entrar al pod:
 
 ``` bash
-kubectl exec -it -n centreon centreon-bd7786c97-xltnb -- sh
+kubectl exec -it -n centreon centreon-bd7786c97-q8m7d -- sh
 ```
 
 ------------------------------------------------------------------------
@@ -171,7 +171,7 @@ Ejemplo:
 Entrar al contenedor:
 
 ``` bash
-kubectl exec -it -n centreon centreon-bd7786c97-xltnb -- sh
+kubectl exec -it -n centreon centreon-bd7786c97-q8m7d -- sh
 ```
 
 Entrar a MariaDB:
@@ -233,3 +233,21 @@ SELECT * FROM contact_password;
 **Password**
 
     admin
+
+
+
+
+
+CREAR DEPLOYMENT
+docker build -t shovelman/k8s-healthcheck:1.0 .
+docker images
+docker login
+docker push shovelman/k8s-healthcheck:1.0
+kubectl apply -f k8s-healthcheck-deployment.yaml
+kubectl get pods -n centreon
+kubectl apply -f k8s-healthcheck-service.yaml
+kubectl get svc -n centreon
+kubectl apply -f rbac-healthcheck.yaml
+
+kubectl run testcurl -n centreon --rm -it --image=curlimages/curl -- sh
+curl http://k8s-healthcheck/health

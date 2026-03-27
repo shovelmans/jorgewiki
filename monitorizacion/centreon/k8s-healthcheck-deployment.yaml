@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-healthcheck
+  namespace: centreon
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-healthcheck
+  template:
+    metadata:
+      labels:
+        app: k8s-healthcheck
+    spec:
+      serviceAccountName: k8s-healthcheck
+      containers:
+      - name: healthcheck
+        image: shovelman/k8s-healthcheck:3.1
+        ports:
+        - containerPort: 8080

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafbat-ui-config
+  namespace: kafka
+data:
+  config.yml: |
+    kafbat:
+      clusters:
+        - name: lab-kafka
+          bootstrapServers: "lab-kafka-kafka-bootstrap:9092"
