@@ -20,7 +20,7 @@ metadata:
   labels:
     strimzi.io/cluster: lab-kafka
 spec:
-  replicas: 2
+  replicas: 1
   roles:
     - broker
   storage:
@@ -46,10 +46,10 @@ spec:
         type: internal
         tls: true
     config:
-      default.replication.factor: 2
+      default.replication.factor: 1
       min.insync.replicas: 1
-      offsets.topic.replication.factor: 2
-      transaction.state.log.replication.factor: 2
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
       transaction.state.log.min.isr: 1
   entityOperator:
     topicOperator: {}

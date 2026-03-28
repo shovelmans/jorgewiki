@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer-pedidos
+  namespace: nsapp01
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: producer-pedidos
+  template:
+    metadata:
+      labels:
+        app: producer-pedidos
+    spec:
+      containers:
+        - name: producer
+          image: python:3.11
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              pip install --no-cache-dir kafka-python && \
+              cat > /tmp/producer_pedidos.py <<'EOF'
+              from kafka import KafkaProducer
+              import time
+              import random
+              import os
+
+              producer = KafkaProducer(
+                  bootstrap_servers='lab-kafka-kafka-bootstrap.kafka.svc:9092',
+                  value_serializer=lambda v: v.encode('utf-8')
+              )
+
+              pod_name = os.environ.get("HOSTNAME", "pod-desconocido")
+
+              while True:
+                  numero = random.randint(1, 99999)
+                  mensaje = f"{pod_name} -> Pedido realizado numero {numero}"
+                  producer.send('topic-prueba', mensaje)
+                  producer.flush()
+                  print(f"Enviado: {mensaje}", flush=True)
+                  time.sleep(120)
+              EOF
+              python /tmp/producer_pedidos.py
