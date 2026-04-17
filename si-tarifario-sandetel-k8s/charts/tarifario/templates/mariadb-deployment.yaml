@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.mariadb.name }}
+  labels:
+    app: {{ .Values.mariadb.name }}
+spec:
+  replicas: {{ .Values.mariadb.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.mariadb.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.mariadb.name }}
+    spec:
+      containers:
+        - name: {{ .Values.mariadb.name }}
+          image: {{ .Values.mariadb.image | quote }}
+          ports:
+            - containerPort: {{ .Values.mariadb.port }}
+              protocol: TCP
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.secretName }}
+                  key: database-user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.secretName }}
+                  key: database-password
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.secretName }}
+                  key: database-root-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mariadb.secretName }}
+                  key: database-name
+          volumeMounts:
+            - name: {{ .Values.mariadb.volumeName }}
+              mountPath: /var/lib/mysql/data
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -i
+                - -c
+                - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -i
+                - -c
+                - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+            initialDelaySeconds: 30
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: {{ .Values.mariadb.resources.requests.cpu }}
+              memory: {{ .Values.mariadb.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.mariadb.resources.limits.cpu }}
+              memory: {{ .Values.mariadb.resources.limits.memory }}
+      volumes:
+        - name: {{ .Values.mariadb.volumeName }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.mariadb.pvcName }}

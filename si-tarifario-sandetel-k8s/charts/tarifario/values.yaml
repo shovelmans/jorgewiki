@@ -1,0 +1,28 @@
+mariadb:
+  name: mariadb
+  replicas: 1
+  image: image-registry.openshift-image-registry.svc:5000/openshift/mariadb:10.3-el8
+  port: 3306
+
+  serviceName: mariadb
+  secretName: mariadb
+  pvcName: mariadb
+  volumeName: mariadb-data
+
+  database:
+    name: tarifario
+    user: tarifario
+    password: password
+    rootPassword: root_password
+
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
