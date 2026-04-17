@@ -8,6 +8,7 @@ mariadb:
   secretName: mariadb
   pvcName: mariadb
   volumeName: mariadb-data
+  configMapName: mariadb-initdb
 
   database:
     name: tarifario
