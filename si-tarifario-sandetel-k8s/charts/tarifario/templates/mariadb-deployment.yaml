@@ -48,13 +48,13 @@ spec:
               mountPath: /docker-entrypoint-initdb.d/init.sql
               subPath: init.sql
             - name: mariadb-readiness
-              mountPath: /opt/checks/readiness.py
-              subPath: readiness.py
+              mountPath: /opt/checks/readiness.sh
+              subPath: readiness.sh
           readinessProbe:
             exec:
               command:
-                - python3
-                - /opt/checks/readiness.py
+                - /bin/sh
+                - /opt/checks/readiness.sh
             initialDelaySeconds: {{ .Values.mariadb.probes.readiness.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.mariadb.probes.readiness.timeoutSeconds }}
             periodSeconds: {{ .Values.mariadb.probes.readiness.periodSeconds }}

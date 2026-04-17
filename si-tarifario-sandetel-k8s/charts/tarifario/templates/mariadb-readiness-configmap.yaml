@@ -5,5 +5,5 @@ metadata:
   labels:
     app: {{ .Values.mariadb.name }}
 data:
-  readiness.py: |
-{{ .Files.Get "files/readiness.py" | indent 4 }}
+  readiness.sh: |
+{{ .Files.Get "files/readiness.sh" | indent 4 }}
