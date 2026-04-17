@@ -1,7 +1,7 @@
 mariadb:
   name: mariadb
   replicas: 1
-  image: image-registry.openshift-image-registry.svc:5000/openshift/mariadb:10.3-el8
+  image: mariadb:10.3
   port: 3306
 
   serviceName: mariadb
