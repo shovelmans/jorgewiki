@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS concesionario;
 USE concesionario;
 
 CREATE TABLE IF NOT EXISTS personas (
