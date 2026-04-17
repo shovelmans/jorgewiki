@@ -47,18 +47,19 @@ spec:
             - name: mariadb-initdb
               mountPath: /docker-entrypoint-initdb.d/init.sql
               subPath: init.sql
+            - name: mariadb-readiness
+              mountPath: /opt/checks/readiness.py
+              subPath: readiness.py
           readinessProbe:
             exec:
               command:
-                - /bin/sh
-                - -i
-                - -c
-                - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
-            initialDelaySeconds: 5
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
+                - python3
+                - /opt/checks/readiness.py
+            initialDelaySeconds: {{ .Values.mariadb.probes.readiness.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.mariadb.probes.readiness.timeoutSeconds }}
+            periodSeconds: {{ .Values.mariadb.probes.readiness.periodSeconds }}
+            successThreshold: {{ .Values.mariadb.probes.readiness.successThreshold }}
+            failureThreshold: {{ .Values.mariadb.probes.readiness.failureThreshold }}
           livenessProbe:
             exec:
               command:
@@ -66,11 +67,11 @@ spec:
                 - -i
                 - -c
                 - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
-            initialDelaySeconds: 30
-            timeoutSeconds: 1
-            periodSeconds: 10
-            successThreshold: 1
-            failureThreshold: 3
+            initialDelaySeconds: {{ .Values.mariadb.probes.liveness.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.mariadb.probes.liveness.timeoutSeconds }}
+            periodSeconds: {{ .Values.mariadb.probes.liveness.periodSeconds }}
+            successThreshold: {{ .Values.mariadb.probes.liveness.successThreshold }}
+            failureThreshold: {{ .Values.mariadb.probes.liveness.failureThreshold }}
           resources:
             requests:
               cpu: {{ .Values.mariadb.resources.requests.cpu }}
@@ -85,3 +86,6 @@ spec:
         - name: mariadb-initdb
           configMap:
             name: {{ .Values.mariadb.configMapName }}
+        - name: mariadb-readiness
+          configMap:
+            name: {{ .Values.mariadb.readinessConfigMapName }}

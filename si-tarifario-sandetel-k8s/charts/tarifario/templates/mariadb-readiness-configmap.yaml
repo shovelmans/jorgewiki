@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.mariadb.readinessConfigMapName }}
+  labels:
+    app: {{ .Values.mariadb.name }}
+data:
+  readiness.py: |
+{{ .Files.Get "files/readiness.py" | indent 4 }}
