@@ -11,7 +11,7 @@ mariadb:
   configMapName: mariadb-initdb
 
   database:
-    name: tarifario
+    name: concesionario
     user: tarifario
     password: password
     rootPassword: root_password
