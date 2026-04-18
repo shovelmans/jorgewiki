@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.backend.name }}
+  labels:
+    app: {{ .Values.backend.name }}
+spec:
+  replicas: {{ .Values.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.name }}
+    spec:
+      containers:
+        - name: {{ .Values.backend.name }}
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+
+          ports:
+            - containerPort: {{ .Values.backend.port }}
+              protocol: TCP
+
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mariadb://{{ .Values.backend.database.host }}:{{ .Values.backend.database.port }}/{{ .Values.backend.database.name }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{ .Values.backend.database.user | quote }}
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: {{ .Values.backend.database.password | quote }}
+
+          resources:
+            requests:
+              cpu: {{ .Values.backend.resources.requests.cpu }}
+              memory: {{ .Values.backend.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.backend.resources.limits.cpu }}
+              memory: {{ .Values.backend.resources.limits.memory }}

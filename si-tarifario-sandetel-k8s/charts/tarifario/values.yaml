@@ -42,3 +42,50 @@ mariadb:
     limits:
       cpu: 300m
       memory: 512Mi
+
+backend:
+  name: tarifario-backend
+  replicas: 1
+  port: 8080
+
+  image:
+    repository: shovelman/si-tarifario
+    tag: "1.0"
+    pullPolicy: IfNotPresent
+
+  service:
+    name: tarifario-backend
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+
+  database:
+    host: mariadb
+    port: 3306
+    name: tarifario
+    user: tarifario
+    password: password
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi
+
+  probes:
+    readiness:
+      initialDelaySeconds: 20
+      timeoutSeconds: 3
+      periodSeconds: 10
+      successThreshold: 1
+      failureThreshold: 3
+      path: /actuator/health
+    liveness:
+      initialDelaySeconds: 30
+      timeoutSeconds: 3
+      periodSeconds: 15
+      successThreshold: 1
+      failureThreshold: 3
+      path: /actuator/health
