@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, abort
 from flask_cors import CORS
 import pymysql
 import os
@@ -11,6 +11,13 @@ DB_PORT = int(os.getenv("DB_PORT", "3306"))
 DB_USER = os.getenv("DB_USER", "tarifario")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 DB_NAME = os.getenv("DB_NAME", "tarifario")
+
+TABLAS_PERMITIDAS = [
+    "categorias",
+    "marcas",
+    "productos",
+    "historico_precios"
+]
 
 
 def get_connection():
@@ -27,6 +34,30 @@ def get_connection():
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok"})
+
+
+@app.route("/tablas", methods=["GET"])
+def obtener_tablas():
+    return jsonify(TABLAS_PERMITIDAS)
+
+
+@app.route("/tabla/<nombre_tabla>", methods=["GET"])
+def obtener_tabla(nombre_tabla):
+    if nombre_tabla not in TABLAS_PERMITIDAS:
+        abort(404, description="Tabla no permitida")
+
+    connection = get_connection()
+
+    try:
+        with connection.cursor() as cursor:
+            sql = f"SELECT * FROM {nombre_tabla}"
+            cursor.execute(sql)
+            filas = cursor.fetchall()
+
+        return jsonify(filas)
+
+    finally:
+        connection.close()
 
 
 @app.route("/productos", methods=["GET"])

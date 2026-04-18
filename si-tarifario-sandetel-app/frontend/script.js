@@ -1,32 +1,69 @@
-const API_URL = "/api/productos";
+const API_BASE = "/api";
 
-async function cargarProductos() {
+async function cargarTablas() {
   try {
-    const respuesta = await fetch(API_URL);
-    const productos = await respuesta.json();
+    const res = await fetch(`${API_BASE}/tablas`);
+    const tablas = await res.json();
 
-    const tbody = document.getElementById("productos-body");
-    tbody.innerHTML = "";
+    const contenedor = document.getElementById("botones-tablas");
+    contenedor.innerHTML = "";
 
-    productos.forEach(producto => {
-      const fila = document.createElement("tr");
+    tablas.forEach(tabla => {
+      const btn = document.createElement("button");
+      btn.textContent = tabla;
+      btn.onclick = () => cargarDatosTabla(tabla);
 
-      fila.innerHTML = `
-        <td>${producto.id}</td>
-        <td>${producto.nombre}</td>
-        <td>${producto.marca}</td>
-        <td>${producto.categoria}</td>
-        <td>${producto.modelo || ""}</td>
-        <td>${producto.sku}</td>
-        <td>${producto.precio} ${producto.moneda}</td>
-        <td>${producto.stock}</td>
-      `;
-
-      tbody.appendChild(fila);
+      contenedor.appendChild(btn);
     });
   } catch (error) {
-    console.error("Error cargando productos:", error);
+    console.error("Error cargando tablas:", error);
   }
 }
 
-cargarProductos();
+async function cargarDatosTabla(tabla) {
+  try {
+    const res = await fetch(`${API_BASE}/tabla/${tabla}`);
+    const datos = await res.json();
+
+    document.getElementById("titulo-tabla").textContent = `Tabla: ${tabla}`;
+
+    const thead = document.getElementById("tabla-head");
+    const tbody = document.getElementById("tabla-body");
+
+    thead.innerHTML = "";
+    tbody.innerHTML = "";
+
+    if (datos.length === 0) return;
+
+    // Cabeceras dinámicas
+    const columnas = Object.keys(datos[0]);
+    const filaHead = document.createElement("tr");
+
+    columnas.forEach(col => {
+      const th = document.createElement("th");
+      th.textContent = col;
+      filaHead.appendChild(th);
+    });
+
+    thead.appendChild(filaHead);
+
+    // Filas
+    datos.forEach(row => {
+      const tr = document.createElement("tr");
+
+      columnas.forEach(col => {
+        const td = document.createElement("td");
+        td.textContent = row[col];
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+  } catch (error) {
+    console.error("Error cargando datos:", error);
+  }
+}
+
+// Inicializar
+cargarTablas();

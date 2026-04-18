@@ -9,26 +9,20 @@
 <body>
   <header>
     <h1>Tarifario Informático</h1>
-    <p>Listado de productos</p>
+    <p>Consultas de tablas</p>
   </header>
 
   <main>
     <section class="contenedor">
-      <table id="tabla-productos">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Marca</th>
-            <th>Categoría</th>
-            <th>Modelo</th>
-            <th>SKU</th>
-            <th>Precio</th>
-            <th>Stock</th>
-          </tr>
-        </thead>
-        <tbody id="productos-body">
-        </tbody>
+      <h2>Tablas disponibles</h2>
+      <div id="botones-tablas"></div>
+    </section>
+
+    <section class="contenedor">
+      <h2 id="titulo-tabla">Selecciona una tabla</h2>
+      <table id="tabla-datos">
+        <thead id="tabla-head"></thead>
+        <tbody id="tabla-body"></tbody>
       </table>
     </section>
   </main>
