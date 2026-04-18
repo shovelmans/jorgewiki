@@ -1,0 +1,34 @@
+<h1>Tarifario de productos</h1>
+
+<table *ngIf="productos.length > 0; else sinDatos">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>SKU</th>
+      <th>Modelo</th>
+      <th>Precio</th>
+      <th>Moneda</th>
+      <th>Stock</th>
+      <th>Activo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let producto of productos">
+      <td>{{ producto.id }}</td>
+      <td>{{ producto.nombre }}</td>
+      <td>{{ producto.descripcion }}</td>
+      <td>{{ producto.sku }}</td>
+      <td>{{ producto.modelo }}</td>
+      <td>{{ producto.precio }}</td>
+      <td>{{ producto.moneda }}</td>
+      <td>{{ producto.stock }}</td>
+      <td>{{ producto.activo ? 'Sí' : 'No' }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #sinDatos>
+  <p>No hay productos disponibles.</p>
+</ng-template>
