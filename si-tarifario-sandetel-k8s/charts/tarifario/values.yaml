@@ -88,23 +88,23 @@ backend:
       successThreshold: 1
       failureThreshold: 3
       path: /health
-      
+
 frontend:
   name: tarifario-frontend
   replicas: 1
   port: 80
 
   image:
-    repository: shovelman/si-tarifario-frontend
-    tag: "1.0"
-    pullPolicy: IfNotPresent
+    repository: shovelman/frontend
+    tag: "latest"
+    pullPolicy: Always
 
   service:
     name: tarifario-frontend
     type: NodePort
     port: 80
     targetPort: 80
-    nodePort: 30080
+    nodePort: 30081
 
   resources:
     requests:

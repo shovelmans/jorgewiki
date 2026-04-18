@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/productos";
+const API_URL = "/api/productos";
 
 async function cargarProductos() {
   try {
