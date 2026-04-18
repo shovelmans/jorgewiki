@@ -1,18 +1,12 @@
-FROM maven:3.9.8-eclipse-temurin-17 AS builder
+FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY pom.xml .
-COPY src ./src
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN mvn clean package -DskipTests
+COPY . .
 
-FROM eclipse-temurin:17-jre
+EXPOSE 5000
 
-WORKDIR /app
-
-COPY --from=builder /app/target/*.jar app.jar
-
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["python", "app.py"]
