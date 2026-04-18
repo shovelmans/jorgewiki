@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ### ===== CONFIGURACION =====
-NAMESPACE="argocd-pruebas"
+NAMESPACE="argocd"
 RELEASE="argocd"
 HELM_REPO_NAME="argo"
 HELM_REPO_URL="https://argoproj.github.io/argo-helm"

@@ -12,7 +12,7 @@ mariadb:
   readinessConfigMapName: mariadb-readiness
 
   database:
-    name: concesionario
+    name: tarifario
     user: tarifario
     password: password
     rootPassword: root_password
