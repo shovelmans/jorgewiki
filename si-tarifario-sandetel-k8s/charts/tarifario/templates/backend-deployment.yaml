@@ -1,32 +1,59 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: tarifario-backend-v2
-  namespace: tarifario
+  name: {{ .Values.backend.name }}
+  labels:
+    app: {{ .Values.backend.name }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backend.replicas }}
   selector:
     matchLabels:
-      app: tarifario-backend-v2
+      app: {{ .Values.backend.name }}
   template:
     metadata:
       labels:
-        app: tarifario-backend-v2
+        app: {{ .Values.backend.name }}
     spec:
       containers:
-        - name: backend
-          image: tarifario-backend:latest
-          imagePullPolicy: Never
+        - name: {{ .Values.backend.name }}
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
-            - containerPort: 5000
+            - containerPort: {{ .Values.backend.port }}
+              protocol: TCP
           env:
             - name: DB_HOST
-              value: mariadb
+              value: {{ .Values.backend.database.host | quote }}
             - name: DB_PORT
-              value: "3306"
+              value: {{ .Values.backend.database.port | quote }}
             - name: DB_USER
-              value: tarifario
+              value: {{ .Values.backend.database.user | quote }}
             - name: DB_PASSWORD
-              value: password
+              value: {{ .Values.backend.database.password | quote }}
             - name: DB_NAME
-              value: tarifario
+              value: {{ .Values.backend.database.name | quote }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.readiness.path }}
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.readiness.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.readiness.timeoutSeconds }}
+            periodSeconds: {{ .Values.backend.probes.readiness.periodSeconds }}
+            successThreshold: {{ .Values.backend.probes.readiness.successThreshold }}
+            failureThreshold: {{ .Values.backend.probes.readiness.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.backend.probes.liveness.path }}
+              port: {{ .Values.backend.port }}
+            initialDelaySeconds: {{ .Values.backend.probes.liveness.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.backend.probes.liveness.timeoutSeconds }}
+            periodSeconds: {{ .Values.backend.probes.liveness.periodSeconds }}
+            successThreshold: {{ .Values.backend.probes.liveness.successThreshold }}
+            failureThreshold: {{ .Values.backend.probes.liveness.failureThreshold }}
+          resources:
+            requests:
+              cpu: {{ .Values.backend.resources.requests.cpu }}
+              memory: {{ .Values.backend.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.backend.resources.limits.cpu }}
+              memory: {{ .Values.backend.resources.limits.memory }}
