@@ -26,11 +26,11 @@ mariadb:
       successThreshold: 1
       failureThreshold: 3
     liveness:
-      initialDelaySeconds: 30
+      initialDelaySeconds: 5
       timeoutSeconds: 1
-      periodSeconds: 10
+      periodSeconds: 5
       successThreshold: 1
-      failureThreshold: 3
+      failureThreshold: 1
   resources:
     requests:
       cpu: 100m
