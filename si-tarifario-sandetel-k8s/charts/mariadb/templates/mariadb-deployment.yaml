@@ -6,6 +6,8 @@ metadata:
     app: {{ .Values.mariadb.name }}
 spec:
   replicas: {{ .Values.mariadb.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: {{ .Values.mariadb.name }}
