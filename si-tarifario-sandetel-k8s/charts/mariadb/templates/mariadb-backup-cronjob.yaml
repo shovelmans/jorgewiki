@@ -38,7 +38,7 @@ spec:
                 - -c
                 - |
                   DATE=$(date +%Y-%m-%d)
-                  BACKUP_FILE="/backup/tarifario-${DATE}.sql"
+                  BACKUP_FILE="/backup/tarifario-${DATE}.sql.gz"
                   echo "[BACKUP] Iniciando dump - ${DATE}"
                   mysqldump -h {{ .Values.mariadb.serviceName }} \
                     -u "$MYSQL_USER" \
@@ -47,11 +47,11 @@ spec:
                     --routines \
                     --triggers \
                     --events \
-                    "$MYSQL_DATABASE" > "$BACKUP_FILE"
+                    "$MYSQL_DATABASE" | gzip > "$BACKUP_FILE"
                   echo "[BACKUP] Dump completado: ${BACKUP_FILE}"
                   echo "[BACKUP] Tamaño: $(du -sh $BACKUP_FILE | cut -f1)"
                   echo "[BACKUP] Eliminando backups de mas de 7 dias..."
-                  find /backup -name "tarifario-*.sql" -mtime +7 -delete
+                  find /backup -name "tarifario-*.sql.gz" -mtime +7 -delete
                   echo "[BACKUP] Backups disponibles:"
                   ls -lh /backup/tarifario-*.sql
               volumeMounts:
