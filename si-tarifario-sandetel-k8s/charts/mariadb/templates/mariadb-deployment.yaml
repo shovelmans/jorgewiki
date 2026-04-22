@@ -43,7 +43,7 @@ spec:
                   key: database-name
           volumeMounts:
             - name: {{ .Values.mariadb.volumeName }}
-              mountPath: /var/lib/mysql/data
+              mountPath: /var/lib/mysql
             - name: mariadb-initdb
               mountPath: /docker-entrypoint-initdb.d/init.sql
               subPath: init.sql
