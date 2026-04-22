@@ -1,0 +1,39 @@
+mariadb:
+  name: mariadb
+  replicas: 1
+  image: mariadb:10.3
+  port: 3306
+  serviceName: mariadb
+  secretName: mariadb
+  pvcName: mariadb
+  volumeName: mariadb-data
+  configMapName: mariadb-initdb
+  readinessConfigMapName: mariadb-readiness
+  database:
+    name: tarifario
+    user: tarifario
+    password: password
+    rootPassword: root_password
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 1Gi
+  probes:
+    readiness:
+      initialDelaySeconds: 5
+      timeoutSeconds: 3
+      periodSeconds: 10
+      successThreshold: 1
+      failureThreshold: 3
+    liveness:
+      initialDelaySeconds: 30
+      timeoutSeconds: 1
+      periodSeconds: 10
+      successThreshold: 1
+      failureThreshold: 3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi

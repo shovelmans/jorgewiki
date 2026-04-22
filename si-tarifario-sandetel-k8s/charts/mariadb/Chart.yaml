@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mariadb
+description: Chart Helm para desplegar MariaDB de Tarifario
+type: application
+version: 0.1.0
+appVersion: "10.3"

@@ -1,0 +1,21 @@
+frontend:
+  name: tarifario-frontend
+  replicas: 1
+  port: 80
+  image:
+    repository: shovelman/frontend
+    tag: "latest"
+    pullPolicy: Always
+  service:
+    name: tarifario-frontend
+    type: NodePort
+    port: 80
+    targetPort: 80
+    nodePort: 30081
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 256Mi

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tarifario-backend
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/shovelmans/jorgewiki
+    targetRevision: main
+    path: si-tarifario-sandetel-k8s/charts/backend
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tarifario
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
