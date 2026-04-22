@@ -53,7 +53,7 @@ spec:
                   echo "[BACKUP] Eliminando backups de mas de 7 dias..."
                   find /backup -name "tarifario-*.sql.gz" -mtime +7 -delete
                   echo "[BACKUP] Backups disponibles:"
-                  ls -lh /backup/tarifario-*.sql
+                  ls -lh /backup/tarifario-*.sql.gz
               volumeMounts:
                 - name: mariadb-backup
                   mountPath: /backup
