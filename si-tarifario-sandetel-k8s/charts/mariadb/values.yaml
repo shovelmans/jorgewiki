@@ -10,6 +10,7 @@ mariadb:
   configMapName: mariadb-initdb
   readinessConfigMapName: mariadb-readiness
   livenessConfigMapName: mariadb-liveness
+  backupPvcName: mariadb-backup
   database:
     name: tarifario
     user: tarifario
