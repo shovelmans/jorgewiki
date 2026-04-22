@@ -9,6 +9,7 @@ mariadb:
   volumeName: mariadb-data
   configMapName: mariadb-initdb
   readinessConfigMapName: mariadb-readiness
+  livenessConfigMapName: mariadb-liveness
   database:
     name: tarifario
     user: tarifario

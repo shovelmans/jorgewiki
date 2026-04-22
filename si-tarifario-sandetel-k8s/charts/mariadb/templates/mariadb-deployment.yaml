@@ -50,6 +50,9 @@ spec:
             - name: mariadb-readiness
               mountPath: /opt/checks/readiness.sh
               subPath: readiness.sh
+            - name: mariadb-liveness
+              mountPath: /opt/checks/liveness.sh
+              subPath: liveness.sh
           readinessProbe:
             exec:
               command:
@@ -64,9 +67,7 @@ spec:
             exec:
               command:
                 - /bin/sh
-                - -i
-                - -c
-                - MYSQL_PWD="$MYSQL_PASSWORD" mysqladmin -u $MYSQL_USER ping
+                - /opt/checks/liveness.sh
             initialDelaySeconds: {{ .Values.mariadb.probes.liveness.initialDelaySeconds }}
             timeoutSeconds: {{ .Values.mariadb.probes.liveness.timeoutSeconds }}
             periodSeconds: {{ .Values.mariadb.probes.liveness.periodSeconds }}
@@ -89,3 +90,6 @@ spec:
         - name: mariadb-readiness
           configMap:
             name: {{ .Values.mariadb.readinessConfigMapName }}
+        - name: mariadb-liveness
+          configMap:
+            name: {{ .Values.mariadb.livenessConfigMapName }}
