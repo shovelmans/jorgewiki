@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-deployment
+  namespace: prueba
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: nginx:alpine
+        volumeMounts:
+        - name: datos
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: datos
+        persistentVolumeClaim:
+          claimName: demo-pvc-rwx-real

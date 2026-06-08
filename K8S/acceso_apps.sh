@@ -1,0 +1,40 @@
+#!/bin/bash
+
+WORKER_IP=$(kubectl get nodes -o wide | grep worker | awk '{print $6}' | head -1)
+
+echo ""
+echo "════════════════════════════════════════════════════════════"
+echo "🚀 ACCESO A TODAS LAS APLICACIONES"
+echo "════════════════════════════════════════════════════════════"
+echo ""
+echo "📍 Worker IP: $WORKER_IP"
+echo ""
+
+echo "┌─────────────────┬────────────────┬────────┬──────────────────────────────┐"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "NAMESPACE" "APLICACIÓN" "PUERTO" "URL"
+echo "├─────────────────┼────────────────┼────────┼──────────────────────────────┤"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "produccion" "Nginx" "30001" "http://$WORKER_IP:30001"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "produccion" "Redis" "30002" "redis://$WORKER_IP:30002"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "staging" "Apache" "30003" "http://$WORKER_IP:30003"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "staging" "PostgreSQL" "30004" "$WORKER_IP:30004"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "development" "Prometheus" "30005" "http://$WORKER_IP:30005"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "development" "Grafana" "30006" "http://$WORKER_IP:30006"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "testing" "MySQL" "30007" "$WORKER_IP:30007"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "testing" "Adminer" "30008" "http://$WORKER_IP:30008"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "monitoring" "Elasticsearch" "30009" "http://$WORKER_IP:30009"
+printf "│ %-15s │ %-14s │ %-6s │ %-28s │\n" "monitoring" "Kibana" "30010" "http://$WORKER_IP:30010"
+echo "└─────────────────┴────────────────┴────────┴──────────────────────────────┘"
+echo ""
+
+echo "📋 CREDENCIALES:"
+echo "  • PostgreSQL: usuario=admin, contraseña=admin123"
+echo "  • MySQL: usuario=root, contraseña=root123"
+echo "  • Grafana: usuario=admin, contraseña=admin"
+echo "  • Redis: sin autenticación"
+echo "  • Elasticsearch: sin autenticación"
+echo ""
+
+echo "📦 ESTADO DE PODS:"
+echo ""
+kubectl get pods -A | grep -E "NAMESPACE|produccion|staging|development|testing|monitoring"
+echo ""

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-deployment
+  namespace: prueba
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        app: demo
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - demo
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: demo
+        image: nginx:alpine
+        volumeMounts:
+        - name: datos
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: datos
+        persistentVolumeClaim:
+          claimName: demo-pvc-rwo
