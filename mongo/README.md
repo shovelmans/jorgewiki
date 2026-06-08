@@ -482,6 +482,244 @@ kubectl exec -it mongodb-0 -n mongodb -- mongosh \
 
 ---
 
+## 🔧 Operaciones CRUD Prácticas
+
+Una vez que MongoDB está corriendo, puedes trabajar con datos. Aquí están los ejemplos que funcionan:
+
+### Acceder Interactivamente a MongoDB
+
+```bash
+kubectl exec -it mongodb-0 -n mongodb -- mongosh \
+  --host localhost:27017 \
+  --username root \
+  --password 'MongoDBRootPass123!' \
+  --authenticationDatabase admin
+```
+
+Verás el prompt: `rs0 [direct: primary] test>`
+
+---
+
+### Crear Base de Datos
+
+```javascript
+// Cambiar a base de datos "miapp" (se crea automáticamente)
+use miapp
+
+// Verificar en qué BD estás
+db
+```
+
+---
+
+### Insertar UN Documento
+
+```javascript
+db.usuarios.insertOne({
+  nombre: "Jorge",
+  edad: 22,
+  ciudad: "Salamanca",
+  profesion: "DevOps",
+  tecnologias: ["Kubernetes", "Docker", "Terraform"]
+})
+```
+
+**Salida:**
+```json
+{
+  acknowledged: true,
+  insertedId: ObjectId('6a26a05bc605c5a4a69df8a3')
+}
+```
+
+---
+
+### Insertar MÚLTIPLES Documentos
+
+```javascript
+db.usuarios.insertMany([
+  {nombre: "María", edad: 26, ciudad: "Madrid", profesion: "Backend", tecnologias: ["Python", "FastAPI"]},
+  {nombre: "Luis", edad: 30, ciudad: "Barcelona", profesion: "DevOps", tecnologias: ["Terraform", "AWS"]},
+  {nombre: "Ana", edad: 24, ciudad: "Valencia", profesion: "Frontend", tecnologias: ["React", "JavaScript"]},
+  {nombre: "Pedro", edad: 28, ciudad: "Bilbao", profesion: "FullStack", tecnologias: ["Node.js", "MongoDB"]},
+  {nombre: "Sandra", edad: 25, ciudad: "Sevilla", profesion: "Data Engineer", tecnologias: ["Spark", "Python"]},
+  {nombre: "Carlos", edad: 32, ciudad: "Zaragoza", profesion: "SysAdmin", tecnologias: ["Linux", "Ansible"]},
+  {nombre: "Laura", edad: 23, ciudad: "Málaga", profesion: "QA", tecnologias: ["Selenium", "Jest"]},
+  {nombre: "José", edad: 29, ciudad: "Murcia", profesion: "DevOps", tecnologias: ["Docker", "Kubernetes"]}
+])
+```
+
+**Salida:**
+```
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6a26a05bc605c5a4a69df8a3'),
+    '1': ObjectId('6a26a05bc605c5a4a69df8a4'),
+  }
+}
+```
+
+---
+
+### Ver Todos los Documentos
+
+```javascript
+// Ver todos
+db.usuarios.find().pretty()
+```
+
+**Salida esperada:**
+```json
+[
+  {
+    _id: ObjectId('6a26a05bc605c5a4a69df8a3'),
+    nombre: 'María',
+    edad: 26,
+    ciudad: 'Madrid',
+    profesion: 'Backend',
+    tecnologias: [ 'Python', 'FastAPI' ]
+  }
+]
+```
+
+---
+
+### Contar Documentos
+
+```javascript
+db.usuarios.countDocuments()
+```
+
+**Salida:** `8`
+
+---
+
+### Insertar MUCHOS Documentos (Loop)
+
+```javascript
+// Insertar 100 documentos de prueba
+for(let i = 1; i <= 100; i++) {
+  db.logs.insertOne({
+    id: i,
+    mensaje: `Log número ${i}`,
+    timestamp: new Date(),
+    nivel: i % 2 == 0 ? "INFO" : "DEBUG",
+    servicio: ["API", "DB", "Cache"][i % 3]
+  })
+}
+
+// Verificar
+db.logs.countDocuments()
+```
+
+**Salida:** `100`
+
+---
+
+### Ver Colecciones
+
+```javascript
+show collections
+```
+
+**Salida:**
+```
+logs
+usuarios
+```
+
+---
+
+### Búsquedas (Filtros)
+
+```javascript
+// Buscar un documento específico
+db.usuarios.findOne({nombre: "Jorge"})
+
+// Buscar todos los DevOps
+db.usuarios.find({profesion: "DevOps"}).pretty()
+
+// Buscar por edad > 25
+db.usuarios.find({edad: {$gt: 25}}).pretty()
+
+// Buscar por ciudad
+db.usuarios.find({ciudad: "Madrid"}).pretty()
+```
+
+---
+
+### Actualizar Documentos
+
+```javascript
+// Actualizar UN documento
+db.usuarios.updateOne(
+  {nombre: "Jorge"},
+  {$set: {edad: 23, salario: 3200}}
+)
+
+// Ver el resultado
+db.usuarios.findOne({nombre: "Jorge"}).pretty()
+```
+
+---
+
+### Eliminar Documentos
+
+```javascript
+// Eliminar UN documento
+db.usuarios.deleteOne({nombre: "Ana"})
+
+// Verificar cuántos quedan
+db.usuarios.countDocuments()
+```
+
+---
+
+### Crear Índices
+
+```javascript
+// Crear índice en "nombre"
+db.usuarios.createIndex({nombre: 1})
+
+// Ver índices
+db.usuarios.getIndexes()
+```
+
+---
+
+### Ver Estadísticas
+
+```javascript
+db.usuarios.stats()
+```
+
+---
+
+### Salir de mongosh
+
+```javascript
+exit
+```
+
+---
+
+## 📊 Resumen de Operaciones CRUD
+
+| Operación | Comando |
+|-----------|---------|
+| Insertar 1 | `insertOne({...})` |
+| Insertar múltiples | `insertMany([{...}])` |
+| Ver todos | `find().pretty()` |
+| Ver 1 | `findOne({filter})` |
+| Buscar | `find({filter})` |
+| Actualizar | `updateOne({filter}, {$set: {...}})` |
+| Eliminar | `deleteOne({filter})` |
+| Contar | `countDocuments()` |
+| Índice | `createIndex({campo: 1})` |
+
+---
+
 ## 🗑️ Limpieza Completa
 
 ### Eliminar todo sin dejar rastro
